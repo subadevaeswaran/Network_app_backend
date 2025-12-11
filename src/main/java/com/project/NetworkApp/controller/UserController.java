@@ -1,0 +1,30 @@
+package com.project.NetworkApp.controller;
+
+import com.project.NetworkApp.DTO.LoginRequestDTO;
+import com.project.NetworkApp.DTO.UserCreateDTO;
+import com.project.NetworkApp.DTO.UserResponseDTO;
+import com.project.NetworkApp.Service.UserService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/users")
+@CrossOrigin("http://localhost:5173")
+@RequiredArgsConstructor
+public class UserController {
+
+    private final UserService userService;
+
+    @PostMapping
+    public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserCreateDTO userCreateDTO) {
+        UserResponseDTO createdUser = userService.createUser(userCreateDTO);
+        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<UserResponseDTO> loginUser(@RequestBody LoginRequestDTO loginRequestDTO) {
+        UserResponseDTO user = userService.login(loginRequestDTO);
+        return ResponseEntity.ok(user);}
+}

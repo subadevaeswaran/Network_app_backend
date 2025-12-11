@@ -1,0 +1,14 @@
+package com.project.NetworkApp.Service;
+
+
+import com.project.NetworkApp.DTO.TechnicianDTO;
+
+import java.util.List;
+import java.util.Optional;
+
+public interface TechnicianService {
+    // Modify to accept an optional region
+    List<TechnicianDTO> getTechnicians(String region);
+
+    public Optional<TechnicianDTO> getTechnicianByUserId(Integer userId);
+}

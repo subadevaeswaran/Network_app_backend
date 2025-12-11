@@ -1,0 +1,92 @@
+package com.project.NetworkApp.Utility;
+
+
+
+import com.project.NetworkApp.DTO.CustomerDTO;
+import com.project.NetworkApp.Repository.SplitterRepository;
+import com.project.NetworkApp.entity.Customer;
+import com.project.NetworkApp.entity.Fdh;
+import com.project.NetworkApp.entity.Splitter;
+import jakarta.persistence.EntityNotFoundException;
+
+/**
+ * A plain utility class with static methods for mapping between
+ * Customer entities and DTOs.
+ */
+public class CustomerUtility {
+
+    /**
+     * A private constructor to prevent this utility class from being instantiated.
+     */
+    private CustomerUtility() {}
+
+    /**
+     * Converts a Customer entity to a CustomerDTO.
+     * This method is self-contained and has no dependencies.
+     *
+     * @param customer The Customer entity to convert.
+     * @return The resulting CustomerDTO.
+     */
+    public static CustomerDTO toDTO(Customer customer) {
+        if (customer == null) {
+            return null;
+        }
+        String splitterModel = null;
+        String fdhName = null;
+
+        Splitter splitter = customer.getSplitter();
+        if (splitter != null) {
+            splitterModel = splitter.getModel(); // Get splitter model
+            Fdh fdh = splitter.getFdh();
+            if (fdh != null) {
+                fdhName = fdh.getName(); // Get FDH name
+            }
+        }
+
+        return new CustomerDTO(
+                customer.getId(),
+                customer.getName(),
+                customer.getAddress(),
+                customer.getCity(),
+                customer.getNeighborhood(),
+                customer.getPlan(),
+                customer.getConnectionType(),
+                customer.getStatus(),
+                customer.getAssignedPort(),
+                customer.getCreatedAt(),
+                customer.getSplitter() != null ? customer.getSplitter().getId() : null,
+                splitterModel, // <-- Pass new data
+                fdhName,
+                null
+
+        );
+    }
+
+    /**
+     * Converts a CustomerDTO to a Customer entity.
+     *
+     * @param dto The CustomerDTO to convert.
+     * @param splitterRepository A repository instance needed to find the associated Splitter.
+     * @return The resulting Customer entity.
+     */
+    public static Customer toEntity(CustomerDTO dto, SplitterRepository splitterRepository) {
+        Customer customer = new Customer();
+        customer.setName(dto.name());
+        customer.setAddress(dto.address());
+        customer.setCity(dto.city());
+        customer.setNeighborhood(dto.neighborhood());
+        customer.setPlan(dto.plan());
+        customer.setConnectionType(dto.connectionType());
+        customer.setStatus(dto.status());
+        customer.setAssignedPort(dto.assignedPort());
+
+        // Use the passed-in repository to find and link the Splitter
+        if (dto.splitterId() != null) {
+            Splitter splitter = splitterRepository.findById(dto.splitterId())
+                    .orElseThrow(() -> new EntityNotFoundException("Splitter not found with id: " + dto.splitterId()));
+            customer.setSplitter(splitter);
+        }
+
+        return customer;
+    }
+}
